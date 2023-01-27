@@ -41,7 +41,7 @@ const setorSchema = new mongoose.Schema({
 const Setor = mongoose.model('Setor', setorSchema); // Associando a estrutura do documento com sua collection no banco de dados 
 // -----------------------------------------------------------------------------------------------------------------
 const cargoSchema = new mongoose.Schema({
-  atribuicoes: {
+  nome: {
     type: String,
     required: true
   },
@@ -239,7 +239,7 @@ const salesAndDeliveriesSubMenu = {
 // Configurações do AdminBro 
 const adminBro = new AdminBro({
   rootPath: '/', // Rota em que a aplicação irá rodar
-  resources: [ // Modelos ("classes" no MongoDB) que o AdminBro irá usar
+  resources: [ // Modelos que o AdminBro irá usar associado com os seus sub-menus
     {
       resource: Setor, options: {parent: employesAndMachinesSubMenu}
     },
