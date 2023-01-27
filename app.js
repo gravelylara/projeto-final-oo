@@ -12,9 +12,8 @@ AdminBro.registerAdapter(require('admin-bro-mongoose'));
 const app = express();
 app.use(bodyParser.json());
 
-// Modelos do utilizados pelo mongoose (Modelo é o formato utilizado para gravar os documentos no MongoDB.
-// O MongoDB é um banco de dados orientado a documentos)
-// Schemas são utilizados para definir a estrutura de um documento no banco de dados.
+// Modelos utilizados pelo mongoose (Modelo é o formato utilizado para gravar a estrutura dos documentos no MongoDB).
+// Schemas são utilizados para definir a estrutura dos modelos.
 
 const setorSchema = new mongoose.Schema({
   nome: {
@@ -237,7 +236,7 @@ const salesAndDeliveriesSubMenu = {
   name: 'Sub-menu de vendas e entregas'
 }
 
-// Configurações do AdminBro (Rotas, modelos, classes, etc)
+// Configurações do AdminBro 
 const adminBro = new AdminBro({
   rootPath: '/', // Rota em que a aplicação irá rodar
   resources: [ // Modelos ("classes" no MongoDB) que o AdminBro irá usar
