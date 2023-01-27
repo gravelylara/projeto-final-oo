@@ -17,48 +17,259 @@ app.use(bodyParser.json());
 // Schemas são utilizados para definir a estrutura de um documento no banco de dados.
 
 const setorSchema = new mongoose.Schema({
-  nome: String,
-  // responsible: Employee
-})
+  nome: {
+    type: String,
+    required: true
+  },
+  responsavel: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Funcionarios'
+  }, 
+  funcionarios: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Funcionarios',
+    }
+  ],
+  maquinario: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Maquina'
+    }
+  ]
+});
 
 const Setor = mongoose.model('Setor', setorSchema); // Associando a estrutura do documento com sua collection no banco de dados 
+// -----------------------------------------------------------------------------------------------------------------
+const cargoSchema = new mongoose.Schema({
+  atribuicoes: {
+    type: String,
+    required: true
+  },
+  salario: {
+    type: Number,
+    required: true
+  }
+})
 
-
+const Cargo = mongoose.model('Cargo', cargoSchema)
+// -----------------------------------------------------------------------------------------------------------------
 const funcionarioSchema = new mongoose.Schema({
-  nome: String,
-  cpf: String,
-  cargo: String,
+  nome: {
+    type: String, 
+    required: true
+  },
+  CPF: {
+    type: String,
+    required: true
+  },
+  cargo: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Cargo',
+    required: true
+  }
+});
+
+const Funcionarios = mongoose.model('Funcionarios', funcionarioSchema);
+//----------------------------------------------------------------------------------------------------------------
+const maquinaSchema = new mongoose.Schema({
+  nome: {
+    type: String,
+    required: true
+  },
+  numeroDeInventario: {
+    type: Number,
+    required: true
+  },
+  dataDaProximaManutencao: {
+    type: Date,
+    required: true
+  },
+  responsavelPelaManutencao: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Funcionarios'
+  }
+});
+
+
+const Maquinas = mongoose.model('Maquina', maquinaSchema);
+//---------------------------------------------------------------------------------------------------------------
+const estoqueSchema = new mongoose.Schema({
+  nomeDoItem: {
+    type: String,
+    required: true
+  }
+});
+
+const Estoque = mongoose.model('Estoque', estoqueSchema);
+//---------------------------------------------------------------------------------------------------------------
+const linhaProducaoSchema = new mongoose.Schema({
+  nomeDoProdutoGerado: {
+    type: String,
+    required: true
+  },
+  materiaPrimaUtilizada: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Estoque',
+      required: true
+    }
+  ],
   setor: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Setor',
     required: true
   }
-})
+});
 
-const Funcionarios = mongoose.model('Funcionários', funcionarioSchema)
+const LinhaProducao = mongoose.model('Linha_de_producao', linhaProducaoSchema);
+//---------------------------------------------------------------------------------------------------------------
+const produtoFinalSchema = new mongoose.Schema({
+  marca:{
+    type: String,
+    required: true
+  },
+  produto: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Linha_de_producao',
+    required: true
+  },
+  tipo: {
+    type: String,
+    required: true
+  },
+  dataDeFabricacao: {
+    type: Date,
+    required: true
+  },
+  dataDeValidade: {
+  type: Date,
+  required: true
+}
+});
 
+const ProdutoFinal = mongoose.model('Produto_final', produtoFinalSchema);
+//---------------------------------------------------------------------------------------------------------------
+const clienteSchema = new mongoose.Schema({
+  nome: {
+    type: String,
+    required: true
+  },
+  endereco: {
+    type: String,
+    required: true
+  },
+  cpfOuCnpj: {
+    type: Number,
+    required: true
+  }
+});
 
-const maquinaSchema = new mongoose.Schema({
-  nome: String,
-  numeroDeInventario: int
-})
+const Cliente = new mongoose.model('Cliente', clienteSchema);
+//---------------------------------------------------------------------------------------------------------------
+const vendaSchema = new mongoose.Schema({
+  codigoDaVenda: {
+    type: String,
+    required: true
+  },
+  data: {
+    type: Date,
+    required: true
+  },
+  itens: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Produto_final',
+      required: true
+    }
+  ],
+  valorTotal: {
+    type: Number,
+    required: true
+  },
+  responsavelPelaVenda: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Funcionarios',
+    required: true
+  },
+  cliente: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Cliente',
+    required: true
+  }
+});
 
+const Venda = mongoose.model('Venda', vendaSchema);
+//---------------------------------------------------------------------------------------------------------------
+const entregaSchema = new mongoose.Schema({
+  dataDeRecebimento: {
+    type: Date,
+    required: true
+  },
+  cliente: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Cliente',
+    required: true
+  },
+  localDeRecebimento: {
+    type: String, 
+    required: true
+  },
+  dadosDaVenda: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Venda',
+    required: true
+  }
+});
 
+const Entrega = new mongoose.model('Entrega', entregaSchema);
 
 // Criação dos sub-menus do AdminBro
-const employesSubMenu = {
+const employesAndMachinesSubMenu = {
   name: 'Sub-menu de funcionários e máquinas'
 };
+
+const productionLineSubMenu = {
+  name: 'Sub-menu da linha de produção'
+};
+
+const salesAndDeliveriesSubMenu = {
+  name: 'Sub-menu de vendas e entregas'
+}
 
 // Configurações do AdminBro (Rotas, modelos, classes, etc)
 const adminBro = new AdminBro({
   rootPath: '/', // Rota em que a aplicação irá rodar
   resources: [ // Modelos ("classes" no MongoDB) que o AdminBro irá usar
     {
-      resource: Setor, options: {parent: employesSubMenu}
+      resource: Setor, options: {parent: employesAndMachinesSubMenu}
     },
     {
-      resource: Funcionarios, options: {parent: employesSubMenu}
+      resource: Cargo, options: {parent: employesAndMachinesSubMenu}
+    },
+    {
+      resource: Funcionarios, options: {parent: employesAndMachinesSubMenu}
+    },
+    {
+      resource: Maquinas, options: {parent: employesAndMachinesSubMenu}
+    },
+    {
+      resource: Estoque, options: {parent: productionLineSubMenu}
+    },
+    {
+      resource: LinhaProducao, options: {parent: productionLineSubMenu}
+    },
+    {
+      resource: ProdutoFinal, options: {parent: productionLineSubMenu}
+    },
+    {
+      resource: Cliente, options: {parent: salesAndDeliveriesSubMenu}
+    },
+    {
+      resource: Venda, options: {parent: salesAndDeliveriesSubMenu}
+    },
+    {
+      resource: Entrega, options: {parent: salesAndDeliveriesSubMenu}
     }  
   ],
   branding: {
